@@ -91,4 +91,4 @@ history = model.fit(
 # SAVE
 # -----------------------------
 
-model.save("pepper_classifier.keras")
+model.save("models/pepper_classifier.keras")

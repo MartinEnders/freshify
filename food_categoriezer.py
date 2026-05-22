@@ -2,7 +2,7 @@ import numpy as np
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing import image
 
-img_path = "val/non-edible/rotten_paprika6.jpeg"  # mit jeweiligem Path ersetzen
+img_path = "data/val/non_edible/rotten_paprika6.jpeg"  # mit jeweiligem Path ersetzen
 
 model = MobileNetV2(weights="imagenet") # Model laden, das auf ImageNet trainiert wurde
 

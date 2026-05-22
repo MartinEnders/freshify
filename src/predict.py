@@ -6,7 +6,7 @@ from tensorflow.keras.preprocessing import image
 print("Starting script...")
 
 IMG_SIZE = (224, 224)
-MODEL_PATH = "pepper_classifier.keras"
+MODEL_PATH = "models/pepper_classifier.keras"
 
 if len(sys.argv) < 2:
     print("Usage: python src/predict.py <image_path>")
