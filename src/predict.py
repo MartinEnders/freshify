@@ -1,40 +1,28 @@
 import sys
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.preprocessing import image
-
-print("Starting script...")
+import PIL.Image as Image
+from keras.models import load_model
+from keras.utils import load_img, img_to_array
 
 IMG_SIZE = (224, 224)
 MODEL_PATH = "models/pepper_classifier.keras"
+MODEL = load_model(MODEL_PATH)
 
-if len(sys.argv) < 2:
-    print("Usage: python src/predict.py <image_path>")
-    sys.exit(1)
+# Need a function for STREAMLIT
+def predict(image_input):
+    if isinstance(image_input, Image.Image):
+        img = image_input.resize(IMG_SIZE)
+    else:
+        img = load_img(image_input, target_size=IMG_SIZE)
+    x = img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    prediction = MODEL.predict(x)[0][0]
+    
+    if prediction >= 0.5:
+        label = "non_edible"
+        confidence = float(prediction)
+    else:
+        label = "edible"
+        confidence = float(1 - prediction)
 
-img_path = sys.argv[1]
-
-print("Loading model...")
-model = tf.keras.models.load_model(MODEL_PATH)
-
-print("Loading image...")
-img = image.load_img(img_path, target_size=IMG_SIZE)
-
-print("Converting image...")
-x = image.img_to_array(img)
-x = np.expand_dims(x, axis=0)
-
-print("Running prediction...")
-prediction = model.predict(x)[0][0]
-
-print("Prediction raw value:", prediction)
-
-if prediction >= 0.5:
-    label = "non_edible"
-    confidence = prediction
-else:
-    label = "edible"
-    confidence = 1 - prediction
-
-print(f"Prediction: {label}")
-print(f"Confidence: {confidence:.2%}")
+    return label, confidence, float(prediction)

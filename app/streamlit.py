@@ -7,7 +7,7 @@ from PIL import Image
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from src.predict import predict_freshness
+from src.predict import predict as predict_freshness  #TODO: unify function names 
 
 
 st.set_page_config(
@@ -25,8 +25,8 @@ st.markdown(
             --ink: #17211b;
             --muted: #66736a;
             --line: #dfe7e1;
-            --fresh: #1f8a5b;
-            --fresh-bg: #e8f6ef;
+            --edible: #1f8a5b;
+            --edible-bg: #e8f6ef;
             --risk: #b42318;
             --risk-bg: #fff1f0;
             --review: #93620d;
@@ -51,7 +51,7 @@ st.markdown(
         }
 
         .eyebrow {
-            color: var(--fresh);
+            color: var(--edible);
             font-size: 0.82rem;
             font-weight: 700;
             letter-spacing: 0.08em;
@@ -101,8 +101,8 @@ st.markdown(
             margin-top: 1rem;
         }
 
-        .result.fresh {
-            background: var(--fresh-bg);
+        .result.edible {
+            background: var(--edible-bg);
             border-color: #afdcc6;
         }
 
@@ -193,7 +193,7 @@ def get_message(mode: str, label: str, confidence: float) -> tuple[str, str, str
     certainty = f"{confidence:.0%}"
 
     if mode == PRIVATE_MODE:
-        if label == "fresh":
+        if label == "edible":
             return (
                 "Spende voraussichtlich geeignet",
                 f"Das Bild wirkt visuell unauffaellig. Die automatische Ersteinschaetzung liegt bei {certainty}.",
@@ -206,7 +206,7 @@ def get_message(mode: str, label: str, confidence: float) -> tuple[str, str, str
             "Naechster Schritt: Nur anbieten, wenn Geruch, Verpackung, Hygiene und Zustand zusaetzlich menschlich geprueft wurden.",
         )
 
-    if label == "fresh":
+    if label == "edible":
         return (
             "Prioritaet: normale Weiterverarbeitung",
             f"Die Ware wirkt visuell verwendbar. Die automatische Ersteinschaetzung liegt bei {certainty}.",
@@ -309,9 +309,10 @@ with right_col:
     else:
         image = Image.open(uploaded_file)
         st.image(image, caption="Hochgeladenes Bild", use_container_width=True)
-
+        print(f"Received image: {image}, size: {image.size} bytes")
+        print(f"Received file: {uploaded_file.name}, size: {uploaded_file.size} bytes")
         try:
-            label, confidence, _ = predict_freshness(image)
+            label, confidence, _ = predict_freshness(image.convert("RGB"))
         except FileNotFoundError as error:
             st.error(str(error))
             st.stop()
@@ -319,7 +320,7 @@ with right_col:
         render_summary(context, mode)
 
         title, body, action = get_message(mode, label, confidence)
-        result_class = "fresh" if label == "fresh" else "spoiled"
+        result_class = "edible" if label == "edible" else "spoiled"
 
         st.markdown(
             f"""
